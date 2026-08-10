@@ -7,6 +7,7 @@ import passport from "./config/passport/index.js";
 import authRoutes from "./routes/auth.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
 import postRoutes from "./routes/post.routes.js";
+import commentRoutes from "./routes/comment.routes.js";
 
 import { errorHandler } from "./middleware/errorHandler.js";
 
@@ -40,8 +41,9 @@ app.get("/health", (req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
-app.use("/api/admin", adminRoutes);
 app.use("/api/posts", postRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api", commentRoutes);
 
 app.use(errorHandler);
 
