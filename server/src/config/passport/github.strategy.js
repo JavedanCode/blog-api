@@ -4,6 +4,42 @@ import { env } from "../env.js";
 
 import { findOrCreateOAuthUser } from "../../services/auth.service.js";
 
+async function getGitHubVerifiedEmail(accessToken) {
+  const response = await fetch("https://api.github.com/user/emails", {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      Accept: "application/vnd.github+json",
+      "X-GitHub-Api-Version": "2026-03-10",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `GitHub email request failed with status ${response.status}.`,
+    );
+  }
+
+  const emails = await response.json();
+
+  /*
+   * Prefer the primary verified email.
+   */
+  const primaryVerifiedEmail = emails.find(
+    (email) => email.primary === true && email.verified === true,
+  );
+
+  if (primaryVerifiedEmail) {
+    return primaryVerifiedEmail.email;
+  }
+
+  /*
+   * Fall back to any verified email.
+   */
+  const verifiedEmail = emails.find((email) => email.verified === true);
+
+  return verifiedEmail?.email ?? null;
+}
+
 const githubStrategy = new GitHubStrategy(
   {
     clientID: env.github.clientId,
@@ -13,9 +49,9 @@ const githubStrategy = new GitHubStrategy(
 
   async (accessToken, refreshToken, profile, done) => {
     try {
-      const emailEntry = profile.emails?.find((entry) => entry.verified);
+      const email = await getGitHubVerifiedEmail(accessToken);
 
-      if (!emailEntry) {
+      if (!email) {
         return done(
           new Error("GitHub account does not have a verified email address."),
         );
@@ -24,11 +60,9 @@ const githubStrategy = new GitHubStrategy(
       const user = await findOrCreateOAuthUser({
         provider: "GITHUB",
         providerAccountId: profile.id,
-        email: emailEntry.value,
+        email,
         username:
-          profile.username ||
-          profile.displayName ||
-          emailEntry.value.split("@")[0],
+          profile.username || profile.displayName || email.split("@")[0],
       });
 
       return done(null, user);
