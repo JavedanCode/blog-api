@@ -4,6 +4,8 @@ import helmet from "helmet";
 import morgan from "morgan";
 
 import passport from "./config/passport/index.js";
+import authRoutes from "./routes/auth.routes.js";
+import { errorHandler } from "./middleware/errorHandler.js";
 
 const app = express();
 
@@ -16,7 +18,12 @@ app.use(
 );
 
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+
+app.use(
+  express.urlencoded({
+    extended: true,
+  }),
+);
 
 app.use(morgan("dev"));
 
@@ -28,5 +35,9 @@ app.get("/health", (req, res) => {
     message: "Blog API is running",
   });
 });
+
+app.use("/api/auth", authRoutes);
+
+app.use(errorHandler);
 
 export default app;
