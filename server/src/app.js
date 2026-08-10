@@ -5,6 +5,8 @@ import morgan from "morgan";
 
 import passport from "./config/passport/index.js";
 import authRoutes from "./routes/auth.routes.js";
+import adminRoutes from "./routes/admin.routes.js";
+
 import { errorHandler } from "./middleware/errorHandler.js";
 
 const app = express();
@@ -37,6 +39,7 @@ app.get("/health", (req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/admin", adminRoutes);
 
 app.use(errorHandler);
 
