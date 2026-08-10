@@ -7,10 +7,12 @@
   "main": "src/server.js",
   "scripts": {
     "dev": "nodemon src/server.js",
-    "start": "node src/server.js"
+    "start": "node src/server.js",
+    "db:seed": "prisma db seed"
   },
   "prisma": {
-    "schema": "./src/db/schema.prisma"
+    "schema": "./src/db/schema.prisma",
+    "seed": "node ./src/db/seed.js"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
