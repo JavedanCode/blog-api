@@ -13,7 +13,13 @@ export const env = {
   port: Number(process.env.PORT) || 3000,
 
   databaseUrl: process.env.DATABASE_URL,
-  jwtSecret: process.env.JWT_SECRET,
+
+  jwt: {
+    secret: process.env.JWT_SECRET,
+    expiresIn: process.env.JWT_EXPIRES_IN || "1h",
+    issuer: "blog-api",
+    audience: "blog-api-client",
+  },
 
   google: {
     clientId: process.env.GOOGLE_CLIENT_ID,
