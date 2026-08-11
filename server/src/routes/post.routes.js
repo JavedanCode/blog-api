@@ -23,13 +23,89 @@ import {
 
 const router = Router();
 
-/*
- * GET /api/posts
+/**
+ * @swagger
+ * /posts:
+ *   get:
+ *     summary: List blog posts
+ *     description: >
+ *       Returns a paginated list of posts available to the authenticated user.
+ *       Regular users can only see published posts, while administrators can
+ *       see both published and unpublished posts.
+ *     tags:
+ *       - Posts
+ *     security:
+ *       - bearerAuth: []
  *
- * Authentication required.
+ *     parameters:
+ *       - name: page
+ *         in: query
+ *         required: false
+ *         description: Page number.
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
  *
- * USER  → published posts
- * ADMIN → all posts
+ *       - name: limit
+ *         in: query
+ *         required: false
+ *         description: Number of posts per page.
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 20
+ *
+ *       - name: sort
+ *         in: query
+ *         required: false
+ *         description: Field used to sort the posts.
+ *         schema:
+ *           type: string
+ *           enum:
+ *             - createdAt
+ *             - updatedAt
+ *             - title
+ *           default: createdAt
+ *
+ *       - name: order
+ *         in: query
+ *         required: false
+ *         description: Sort direction.
+ *         schema:
+ *           type: string
+ *           enum:
+ *             - asc
+ *             - desc
+ *           default: desc
+ *
+ *     responses:
+ *       200:
+ *         description: Paginated list of posts.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 posts:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Post'
+ *                 pagination:
+ *                   $ref: '#/components/schemas/Pagination'
+ *               required:
+ *                 - posts
+ *                 - pagination
+ *
+ *       400:
+ *         $ref: '#/components/responses/ValidationError'
+ *
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *
+ *       500:
+ *         $ref: '#/components/responses/InternalServerError'
  */
 router.get(
   "/",
@@ -72,13 +148,52 @@ router.get(
   listPosts,
 );
 
-/*
- * GET /api/posts/:id
+/**
+ * @swagger
+ * /posts/{id}:
+ *   get:
+ *     summary: Get a blog post
+ *     description: >
+ *       Returns a single post. Regular users can only retrieve published posts.
+ *       Administrators can retrieve both published and unpublished posts.
+ *     tags:
+ *       - Posts
+ *     security:
+ *       - bearerAuth: []
  *
- * Authentication required.
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: Unique identifier of the post.
+ *         schema:
+ *           type: string
+ *           format: uuid
  *
- * USER  → published posts
- * ADMIN → published + drafts
+ *     responses:
+ *       200:
+ *         description: Post returned successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 post:
+ *                   $ref: '#/components/schemas/Post'
+ *               required:
+ *                 - post
+ *
+ *       400:
+ *         $ref: '#/components/responses/ValidationError'
+ *
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *
+ *       500:
+ *         $ref: '#/components/responses/InternalServerError'
  */
 router.get(
   "/:id",
@@ -92,10 +207,52 @@ router.get(
   getPost,
 );
 
-/*
- * POST /api/posts
+/**
+ * @swagger
+ * /posts:
+ *   post:
+ *     summary: Create a blog post
+ *     description: Creates a new unpublished blog post. Administrator privileges are required.
+ *     tags:
+ *       - Posts
+ *     security:
+ *       - bearerAuth: []
  *
- * Admin only.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/CreatePostRequest'
+ *
+ *     responses:
+ *       201:
+ *         description: Post created successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Post created successfully.
+ *                 post:
+ *                   $ref: '#/components/schemas/Post'
+ *               required:
+ *                 - message
+ *                 - post
+ *
+ *       400:
+ *         $ref: '#/components/responses/ValidationError'
+ *
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *
+ *       500:
+ *         $ref: '#/components/responses/InternalServerError'
  */
 router.post(
   "/",
@@ -133,13 +290,64 @@ router.post(
   create,
 );
 
-/*
- * PUT /api/posts/:id
+/**
+ * @swagger
+ * /posts/{id}:
+ *   put:
+ *     summary: Update a blog post
+ *     description: Updates the title and/or content of an existing post. Administrator privileges are required.
+ *     tags:
+ *       - Posts
+ *     security:
+ *       - bearerAuth: []
  *
- * Admin only.
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: Unique identifier of the post.
+ *         schema:
+ *           type: string
+ *           format: uuid
  *
- * Both title and content are optional,
- * allowing partial updates.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/UpdatePostRequest'
+ *
+ *     responses:
+ *       200:
+ *         description: Post updated successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Post updated successfully.
+ *                 post:
+ *                   $ref: '#/components/schemas/Post'
+ *               required:
+ *                 - message
+ *                 - post
+ *
+ *       400:
+ *         $ref: '#/components/responses/ValidationError'
+ *
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *
+ *       500:
+ *         $ref: '#/components/responses/InternalServerError'
  */
 router.put(
   "/:id",
@@ -181,10 +389,52 @@ router.put(
   update,
 );
 
-/*
- * DELETE /api/posts/:id
+/**
+ * @swagger
+ * /posts/{id}:
+ *   delete:
+ *     summary: Delete a blog post
+ *     description: Permanently deletes a blog post and its associated comments. Administrator privileges are required.
+ *     tags:
+ *       - Posts
+ *     security:
+ *       - bearerAuth: []
  *
- * Admin only.
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: Unique identifier of the post.
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *
+ *     responses:
+ *       200:
+ *         description: Post deleted successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Post deleted successfully.
+ *
+ *       400:
+ *         $ref: '#/components/responses/ValidationError'
+ *
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *
+ *       500:
+ *         $ref: '#/components/responses/InternalServerError'
  */
 router.delete(
   "/:id",
@@ -199,10 +449,54 @@ router.delete(
   remove,
 );
 
-/*
- * PATCH /api/posts/:id/publish
+/**
+ * @swagger
+ * /posts/{id}/publish:
+ *   patch:
+ *     summary: Publish a blog post
+ *     description: Publishes an existing unpublished post. Administrator privileges are required.
+ *     tags:
+ *       - Posts
+ *     security:
+ *       - bearerAuth: []
  *
- * Admin only.
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: Unique identifier of the post.
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *
+ *     responses:
+ *       200:
+ *         description: Post published successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Post published successfully.
+ *                 post:
+ *                   $ref: '#/components/schemas/Post'
+ *
+ *       400:
+ *         $ref: '#/components/responses/ValidationError'
+ *
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *
+ *       500:
+ *         $ref: '#/components/responses/InternalServerError'
  */
 router.patch(
   "/:id/publish",
@@ -217,10 +511,54 @@ router.patch(
   publish,
 );
 
-/*
- * PATCH /api/posts/:id/unpublish
+/**
+ * @swagger
+ * /posts/{id}/unpublish:
+ *   patch:
+ *     summary: Unpublish a blog post
+ *     description: Removes a post from the public published posts list. Administrator privileges are required.
+ *     tags:
+ *       - Posts
+ *     security:
+ *       - bearerAuth: []
  *
- * Admin only.
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: Unique identifier of the post.
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *
+ *     responses:
+ *       200:
+ *         description: Post unpublished successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Post unpublished successfully.
+ *                 post:
+ *                   $ref: '#/components/schemas/Post'
+ *
+ *       400:
+ *         $ref: '#/components/responses/ValidationError'
+ *
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *
+ *       500:
+ *         $ref: '#/components/responses/InternalServerError'
  */
 router.patch(
   "/:id/unpublish",
