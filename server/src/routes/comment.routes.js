@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { body, param } from "express-validator";
+import { body, param, checkExact } from "express-validator";
 
 import {
   listForPost,
@@ -44,13 +44,17 @@ router.post(
     param("postId").isUUID().withMessage("Invalid post ID."),
 
     body("content")
+      .isString()
+      .withMessage("Comment content must be a string.")
       .trim()
       .notEmpty()
       .withMessage("Comment content is required.")
       .isLength({
         max: 5000,
       })
-      .withMessage("Comment cannot exceed 5000 characters."),
+      .withMessage("Comment content cannot exceed 5,000 characters."),
+
+    checkExact(),
   ],
 
   handleValidationErrors,
@@ -72,13 +76,17 @@ router.put(
     param("commentId").isUUID().withMessage("Invalid comment ID."),
 
     body("content")
+      .isString()
+      .withMessage("Comment content must be a string.")
       .trim()
       .notEmpty()
-      .withMessage("Comment content is required.")
+      .withMessage("Comment content cannot be empty.")
       .isLength({
         max: 5000,
       })
-      .withMessage("Comment cannot exceed 5000 characters."),
+      .withMessage("Comment content cannot exceed 5,000 characters."),
+
+    checkExact(),
   ],
 
   handleValidationErrors,
@@ -96,7 +104,11 @@ router.delete(
 
   authenticate,
 
-  param("commentId").isUUID().withMessage("Invalid comment ID."),
+  [
+    param("commentId").isUUID().withMessage("Invalid comment ID."),
+
+    checkExact(),
+  ],
 
   handleValidationErrors,
 
