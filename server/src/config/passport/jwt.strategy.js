@@ -6,10 +6,15 @@ import { getUserById } from "../../services/auth.service.js";
 const jwtStrategy = new JwtStrategy(
   {
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+
     secretOrKey: env.jwt.secret,
+
     algorithms: ["HS256"],
-    issuer: "blog-api",
-    audience: "blog-api-client",
+
+    issuer: env.jwt.issuer,
+
+    audience: env.jwt.audience,
+
     passReqToCallback: false,
   },
 
