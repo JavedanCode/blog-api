@@ -20,8 +20,38 @@ import { authLimiter } from "../middleware/rateLimiter.js";
 
 const router = Router();
 
-/*
- * POST /api/auth/register
+/**
+ * @swagger
+ * /auth/register:
+ *   post:
+ *     summary: Register a new user
+ *     description: Creates a new local user account and returns a JWT access token.
+ *     tags:
+ *       - Authentication
+ *
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/RegisterRequest'
+ *
+ *     responses:
+ *       201:
+ *         description: User registered successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AuthResponse'
+ *
+ *       400:
+ *         $ref: '#/components/responses/ValidationError'
+ *
+ *       409:
+ *         $ref: '#/components/responses/Conflict'
+ *
+ *       500:
+ *         $ref: '#/components/responses/InternalServerError'
  */
 router.post(
   "/register",
@@ -62,8 +92,38 @@ router.post(
   register,
 );
 
-/*
- * POST /api/auth/login
+/**
+ * @swagger
+ * /auth/login:
+ *   post:
+ *     summary: Log in with username or email
+ *     description: Authenticates a local user and returns a JWT access token.
+ *     tags:
+ *       - Authentication
+ *
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/LoginRequest'
+ *
+ *     responses:
+ *       200:
+ *         description: Login successful.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AuthResponse'
+ *
+ *       400:
+ *         $ref: '#/components/responses/ValidationError'
+ *
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *
+ *       500:
+ *         $ref: '#/components/responses/InternalServerError'
  */
 router.post(
   "/login",
@@ -98,8 +158,18 @@ router.post(
   login,
 );
 
-/*
- * GET /api/auth/google
+/**
+ * @swagger
+ * /auth/google:
+ *   get:
+ *     summary: Start Google OAuth authentication
+ *     description: Redirects the user to Google to authenticate with their Google account.
+ *     tags:
+ *       - Authentication
+ *
+ *     responses:
+ *       302:
+ *         description: Redirect to the Google OAuth authorization page.
  */
 router.get(
   "/google",
@@ -109,8 +179,46 @@ router.get(
   }),
 );
 
-/*
- * GET /api/auth/google/callback
+/**
+ * @swagger
+ * /auth/google/callback:
+ *   get:
+ *     summary: Handle Google OAuth callback
+ *     description: Handles the callback from Google after successful authentication and returns a JWT access token.
+ *     tags:
+ *       - Authentication
+ *
+ *     parameters:
+ *       - name: code
+ *         in: query
+ *         required: true
+ *         description: Authorization code returned by Google.
+ *         schema:
+ *           type: string
+ *
+ *       - name: state
+ *         in: query
+ *         required: false
+ *         description: OAuth state value, when provided by the OAuth flow.
+ *         schema:
+ *           type: string
+ *
+ *     responses:
+ *       200:
+ *         description: OAuth authentication successful.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AuthResponse'
+ *
+ *       400:
+ *         description: Google OAuth authentication failed or the account does not have a verified email address.
+ *
+ *       502:
+ *         $ref: '#/components/responses/OAuthProviderError'
+ *
+ *       500:
+ *         $ref: '#/components/responses/InternalServerError'
  */
 router.get(
   "/google/callback",
@@ -120,8 +228,18 @@ router.get(
   oauthCallback,
 );
 
-/*
- * GET /api/auth/github
+/**
+ * @swagger
+ * /auth/github:
+ *   get:
+ *     summary: Start GitHub OAuth authentication
+ *     description: Redirects the user to GitHub to authenticate with their GitHub account.
+ *     tags:
+ *       - Authentication
+ *
+ *     responses:
+ *       302:
+ *         description: Redirect to the GitHub OAuth authorization page.
  */
 router.get(
   "/github",
@@ -132,8 +250,46 @@ router.get(
   }),
 );
 
-/*
- * GET /api/auth/github/callback
+/**
+ * @swagger
+ * /auth/github/callback:
+ *   get:
+ *     summary: Handle GitHub OAuth callback
+ *     description: Handles the callback from GitHub after successful authentication and returns a JWT access token.
+ *     tags:
+ *       - Authentication
+ *
+ *     parameters:
+ *       - name: code
+ *         in: query
+ *         required: true
+ *         description: Authorization code returned by GitHub.
+ *         schema:
+ *           type: string
+ *
+ *       - name: state
+ *         in: query
+ *         required: false
+ *         description: OAuth state value, when provided by the OAuth flow.
+ *         schema:
+ *           type: string
+ *
+ *     responses:
+ *       200:
+ *         description: OAuth authentication successful.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AuthResponse'
+ *
+ *       400:
+ *         description: GitHub OAuth authentication failed or the account does not have a verified email address.
+ *
+ *       502:
+ *         $ref: '#/components/responses/OAuthProviderError'
+ *
+ *       500:
+ *         $ref: '#/components/responses/InternalServerError'
  */
 router.get(
   "/github/callback",
