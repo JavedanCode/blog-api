@@ -66,33 +66,89 @@ const options = {
       responses: {
         ValidationError: {
           description: "The request contains invalid data.",
+
+          content: {
+            "application/json": {
+              schema: {
+                $ref: "#/components/schemas/ValidationError",
+              },
+            },
+          },
         },
 
         Unauthorized: {
           description:
             "Authentication is required or the provided credentials are invalid.",
+
+          content: {
+            "application/json": {
+              schema: {
+                $ref: "#/components/schemas/Error",
+              },
+            },
+          },
         },
 
         Forbidden: {
           description:
             "The authenticated user does not have permission to perform this action.",
+
+          content: {
+            "application/json": {
+              schema: {
+                $ref: "#/components/schemas/Error",
+              },
+            },
+          },
         },
 
         NotFound: {
           description: "The requested resource was not found.",
+
+          content: {
+            "application/json": {
+              schema: {
+                $ref: "#/components/schemas/Error",
+              },
+            },
+          },
         },
 
         Conflict: {
           description: "The request conflicts with existing data.",
+
+          content: {
+            "application/json": {
+              schema: {
+                $ref: "#/components/schemas/Error",
+              },
+            },
+          },
         },
 
         InternalServerError: {
           description: "An unexpected server error occurred.",
+
+          content: {
+            "application/json": {
+              schema: {
+                $ref: "#/components/schemas/Error",
+              },
+            },
+          },
         },
 
         OAuthProviderError: {
           description:
             "The external OAuth provider could not complete the authentication request.",
+
+          content: {
+            "application/json": {
+              schema: {
+                $ref: "#/components/schemas/Error",
+              },
+            },
+          },
         },
       },
     },

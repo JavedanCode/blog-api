@@ -115,11 +115,13 @@ export const commonSchemas = {
         properties: {
           code: {
             type: "string",
+            description: "Machine-readable application error code.",
             example: "POST_NOT_FOUND",
           },
 
           message: {
             type: "string",
+            description: "Human-readable description of the error.",
             example: "Post not found.",
           },
         },
@@ -163,6 +165,7 @@ export const commonSchemas = {
 
                 location: {
                   type: "string",
+                  enum: ["body", "query", "params", "headers"],
                   example: "body",
                 },
 
