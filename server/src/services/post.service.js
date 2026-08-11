@@ -1,5 +1,6 @@
 import prisma from "../lib/prisma.js";
 import { serializePost } from "../utils/post.js";
+import { AppError } from "../errors/AppError.js";
 
 const postInclude = {
   author: {
@@ -48,18 +49,14 @@ export async function getPostById(postId, user) {
   });
 
   if (!post) {
-    const error = new Error("Post not found.");
-    error.statusCode = 404;
-    throw error;
+    throw new AppError("Post not found.", 404, "POST_NOT_FOUND");
   }
 
   /*
    * Only admins can see unpublished posts.
    */
   if (!post.published && user.role !== "ADMIN") {
-    const error = new Error("Post not found.");
-    error.statusCode = 404;
-    throw error;
+    throw new AppError("Post not found.", 404, "POST_NOT_FOUND");
   }
 
   return serializePost(post, {
@@ -91,9 +88,7 @@ export async function updatePost(postId, { title, content }) {
   });
 
   if (!existingPost) {
-    const error = new Error("Post not found.");
-    error.statusCode = 404;
-    throw error;
+    throw new AppError("Post not found.", 404, "POST_NOT_FOUND");
   }
 
   const post = await prisma.post.update({
@@ -127,9 +122,7 @@ export async function deletePost(postId) {
   });
 
   if (!existingPost) {
-    const error = new Error("Post not found.");
-    error.statusCode = 404;
-    throw error;
+    throw new AppError("Post not found.", 404, "POST_NOT_FOUND");
   }
 
   await prisma.post.delete({
@@ -147,9 +140,7 @@ export async function publishPost(postId) {
   });
 
   if (!existingPost) {
-    const error = new Error("Post not found.");
-    error.statusCode = 404;
-    throw error;
+    throw new AppError("Post not found.", 404, "POST_NOT_FOUND");
   }
 
   const post = await prisma.post.update({
@@ -177,9 +168,7 @@ export async function unpublishPost(postId) {
   });
 
   if (!existingPost) {
-    const error = new Error("Post not found.");
-    error.statusCode = 404;
-    throw error;
+    throw new AppError("Post not found.", 404, "POST_NOT_FOUND");
   }
 
   const post = await prisma.post.update({

@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 
 import prisma from "../lib/prisma.js";
 import { sanitizeUser } from "../utils/user.js";
+import AppError from "../errors/AppError.js";
 
 const SALT_ROUNDS = 12;
 
@@ -40,15 +41,15 @@ export async function createLocalUser({ username, email, password }) {
 
   if (existingUser) {
     if (existingUser.username === normalizedUsername) {
-      const error = new Error("Username is already in use.");
-      error.statusCode = 409;
-      throw error;
+      throw new AppError(
+        "Username already in use",
+        409,
+        "DUPLICATE_ENTRY_ERROR",
+      );
     }
 
     if (existingUser.email === normalizedEmail) {
-      const error = new Error("Email is already in use.");
-      error.statusCode = 409;
-      throw error;
+      throw new AppError("Email already in use", 409, "DUPLICATE_ENTRY_ERROR");
     }
   }
 

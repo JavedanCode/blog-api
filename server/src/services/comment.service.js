@@ -1,3 +1,4 @@
+import { AppError } from "../errors/AppError.js";
 import prisma from "../lib/prisma.js";
 import { serializeComment } from "../utils/comment.js";
 
@@ -8,20 +9,6 @@ const commentInclude = {
     },
   },
 };
-
-function notFoundError(message = "Comment not found.") {
-  const error = new Error(message);
-  error.statusCode = 404;
-  return error;
-}
-
-function forbiddenError(
-  message = "You do not have permission to perform this action.",
-) {
-  const error = new Error(message);
-  error.statusCode = 403;
-  return error;
-}
 
 /*
  * Get comments for a published post.
@@ -38,7 +25,7 @@ export async function getCommentsForPost(postId) {
   });
 
   if (!post || !post.published) {
-    throw notFoundError("Post not found.");
+    throw new AppError("Post not found.", 404, "POST_NOT_FOUND");
   }
 
   const comments = await prisma.comment.findMany({
@@ -69,7 +56,7 @@ export async function createComment({ content, postId, authorId }) {
   });
 
   if (!post || !post.published) {
-    throw notFoundError("Post not found.");
+    throw new AppError("Post not found.", 404, "POST_NOT_FOUND");
   }
 
   const comment = await prisma.comment.create({
@@ -99,7 +86,7 @@ async function getCommentById(commentId) {
   });
 
   if (!comment) {
-    throw notFoundError();
+    throw new AppError("Comment not found.", 404, "COMMENT_NOT_FOUND");
   }
 
   return comment;
@@ -117,7 +104,11 @@ function assertCanModifyComment(comment, user) {
   }
 
   if (comment.authorId !== user.id) {
-    throw forbiddenError();
+    throw new AppError(
+      "You do not have permission to perform this action.",
+      403,
+      "FORBIDDEN",
+    );
   }
 }
 
