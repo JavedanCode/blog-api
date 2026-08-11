@@ -4,6 +4,7 @@ import { commonSchemas } from "./schemas/common.js";
 import { authSchemas } from "./schemas/auth.js";
 import { postSchemas } from "./schemas/post.js";
 import { commentSchemas } from "./schemas/comment.js";
+import { paginationSchemas } from "./schemas/pagination.js";
 
 const options = {
   definition: {
@@ -61,6 +62,7 @@ const options = {
         ...authSchemas,
         ...postSchemas,
         ...commentSchemas,
+        ...paginationSchemas,
       },
 
       responses: {
