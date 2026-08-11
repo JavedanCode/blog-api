@@ -14,6 +14,8 @@ import { authenticate } from "../middleware/authenticate.js";
 
 import { handleValidationErrors } from "../middleware/validation.js";
 
+import { authLimiter } from "../middleware/rateLimiter.js";
+
 const router = Router();
 
 /*
@@ -21,6 +23,7 @@ const router = Router();
  */
 router.post(
   "/register",
+  authLimiter,
 
   [
     body("username")
@@ -57,6 +60,7 @@ router.post(
  */
 router.post(
   "/login",
+  authLimiter,
 
   [
     body("identifier")
@@ -81,6 +85,7 @@ router.post(
  */
 router.get(
   "/google",
+  authLimiter,
   passport.authenticate("google", {
     scope: ["profile", "email"],
     session: false,
@@ -92,6 +97,7 @@ router.get(
  */
 router.get(
   "/google/callback",
+  authLimiter,
 
   passport.authenticate("google", {
     session: false,
@@ -105,6 +111,7 @@ router.get(
  */
 router.get(
   "/github",
+  authLimiter,
 
   passport.authenticate("github", {
     scope: ["user:email"],
@@ -117,6 +124,7 @@ router.get(
  */
 router.get(
   "/github/callback",
+  authLimiter,
 
   passport.authenticate("github", {
     session: false,
