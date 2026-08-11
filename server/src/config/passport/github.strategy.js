@@ -4,6 +4,8 @@ import { env } from "../env.js";
 
 import { findOrCreateOAuthUser } from "../../services/auth.service.js";
 
+import { AppError } from "../../errors/AppError.js";
+
 async function getGitHubVerifiedEmail(accessToken) {
   const response = await fetch("https://api.github.com/user/emails", {
     headers: {
@@ -14,13 +16,22 @@ async function getGitHubVerifiedEmail(accessToken) {
   });
 
   if (!response.ok) {
-    throw new Error(
-      `GitHub email request failed with status ${response.status}.`,
+    throw new AppError(
+      "Unable to retrieve your GitHub email address.",
+      502,
+      "OAUTH_PROVIDER_ERROR",
     );
   }
 
   const emails = await response.json();
 
+  if (!Array.isArray(emails)) {
+    throw new AppError(
+      "Unable to retrieve your GitHub email address.",
+      502,
+      "OAUTH_PROVIDER_ERROR",
+    );
+  }
   /*
    * Prefer the primary verified email.
    */
@@ -53,10 +64,13 @@ const githubStrategy = new GitHubStrategy(
 
       if (!email) {
         return done(
-          new Error("GitHub account does not have a verified email address."),
+          new AppError(
+            "A verified GitHub email address is required.",
+            400,
+            "OAUTH_EMAIL_NOT_VERIFIED",
+          ),
         );
       }
-
       const user = await findOrCreateOAuthUser({
         provider: "GITHUB",
         providerAccountId: profile.id,

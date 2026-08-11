@@ -4,6 +4,8 @@ import { env } from "../env.js";
 
 import { findOrCreateOAuthUser } from "../../services/auth.service.js";
 
+import { AppError } from "../../errors/AppError.js";
+
 const googleStrategy = new GoogleStrategy(
   {
     clientID: env.google.clientId,
@@ -17,7 +19,11 @@ const googleStrategy = new GoogleStrategy(
 
       if (!emailEntry) {
         return done(
-          new Error("Google account does not have a verified email address."),
+          new AppError(
+            "A verified Google email address is required.",
+            400,
+            "OAUTH_EMAIL_NOT_VERIFIED",
+          ),
         );
       }
 
