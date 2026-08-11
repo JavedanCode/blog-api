@@ -143,8 +143,23 @@ router.get(
   oauthCallback,
 );
 
-/*
- * GET /api/auth/me
+/**
+ * @swagger
+ * /auth/me:
+ *   get:
+ *     summary: Get the current authenticated user
+ *     description: Returns the profile of the user associated with the supplied JWT.
+ *     tags:
+ *       - Authentication
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Authenticated user returned successfully.
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       500:
+ *         $ref: '#/components/responses/InternalServerError'
  */
 router.get("/me", authenticate, me);
 
