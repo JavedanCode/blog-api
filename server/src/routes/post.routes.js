@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { body, param } from "express-validator";
+import { body, param, checkExact } from "express-validator";
 
 import {
   listPosts,
@@ -11,17 +11,11 @@ import {
   unpublish,
 } from "../controllers/post.controller.js";
 
-import passport from "../config/passport/index.js";
-
 import { authenticate } from "../middleware/authenticate.js";
 import { authorize } from "../middleware/authorize.js";
 import { handleValidationErrors } from "../middleware/validation.js";
 
 const router = Router();
-
-const jwtAuthentication = passport.authenticate("jwt", {
-  session: false,
-});
 
 /*
  * GET /api/posts
@@ -33,11 +27,11 @@ const jwtAuthentication = passport.authenticate("jwt", {
  */
 router.get(
   "/",
-
   authenticate,
 
   listPosts,
 );
+
 /*
  * GET /api/posts/:id
  *
@@ -51,7 +45,7 @@ router.get(
 
   authenticate,
 
-  param("id").isUUID().withMessage("Invalid post ID."),
+  [param("id").isUUID().withMessage("Invalid post ID."), checkExact()],
 
   handleValidationErrors,
 
@@ -71,6 +65,8 @@ router.post(
 
   [
     body("title")
+      .isString()
+      .withMessage("Title must be a string.")
       .trim()
       .notEmpty()
       .withMessage("Title is required.")
@@ -79,7 +75,17 @@ router.post(
       })
       .withMessage("Title cannot exceed 200 characters."),
 
-    body("content").notEmpty().withMessage("Content is required."),
+    body("content")
+      .isString()
+      .withMessage("Content must be a string.")
+      .notEmpty()
+      .withMessage("Content is required.")
+      .isLength({
+        max: 100_000,
+      })
+      .withMessage("Content cannot exceed 100,000 characters."),
+
+    checkExact(),
   ],
 
   handleValidationErrors,
@@ -91,6 +97,9 @@ router.post(
  * PUT /api/posts/:id
  *
  * Admin only.
+ *
+ * Both title and content are optional,
+ * allowing partial updates.
  */
 router.put(
   "/:id",
@@ -103,6 +112,8 @@ router.put(
 
     body("title")
       .optional()
+      .isString()
+      .withMessage("Title must be a string.")
       .trim()
       .notEmpty()
       .withMessage("Title cannot be empty.")
@@ -113,8 +124,16 @@ router.put(
 
     body("content")
       .optional()
+      .isString()
+      .withMessage("Content must be a string.")
       .notEmpty()
-      .withMessage("Content cannot be empty."),
+      .withMessage("Content cannot be empty.")
+      .isLength({
+        max: 100_000,
+      })
+      .withMessage("Content cannot exceed 100,000 characters."),
+
+    checkExact(),
   ],
 
   handleValidationErrors,
@@ -133,7 +152,7 @@ router.delete(
   authenticate,
   authorize("ADMIN"),
 
-  param("id").isUUID().withMessage("Invalid post ID."),
+  [param("id").isUUID().withMessage("Invalid post ID."), checkExact()],
 
   handleValidationErrors,
 
@@ -151,7 +170,7 @@ router.patch(
   authenticate,
   authorize("ADMIN"),
 
-  param("id").isUUID().withMessage("Invalid post ID."),
+  [param("id").isUUID().withMessage("Invalid post ID."), checkExact()],
 
   handleValidationErrors,
 
@@ -169,7 +188,7 @@ router.patch(
   authenticate,
   authorize("ADMIN"),
 
-  param("id").isUUID().withMessage("Invalid post ID."),
+  [param("id").isUUID().withMessage("Invalid post ID."), checkExact()],
 
   handleValidationErrors,
 
