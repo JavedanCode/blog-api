@@ -21,37 +21,19 @@ import swaggerUi from "swagger-ui-express";
 
 import { swaggerSpec } from "./docs/openapi.js";
 
-const allowedOrigins = [env.clientUrl].filter(Boolean);
-
 const app = express();
 
 app.use(helmet());
 
 app.use(
   cors({
-    origin(origin, callback) {
-      /*
-       * Allow requests without an Origin header.
-       *
-       * This includes things like curl, Postman,
-       * server-to-server requests, etc.
-       */
-      if (!origin) {
-        return callback(null, true);
-      }
-
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-
-      return callback(
-        new AppError("Origin is not allowed.", 403, "CORS_ORIGIN_NOT_ALLOWED"),
-      );
-    },
+    origin: env.corsOrigins,
 
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
 
     allowedHeaders: ["Content-Type", "Authorization"],
+
+    credentials: false,
   }),
 );
 

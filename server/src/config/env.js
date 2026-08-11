@@ -48,6 +48,14 @@ export const env = {
 
   databaseUrl: process.env.DATABASE_URL,
 
+  corsOrigins: Object.freeze(
+    process.env.CORS_ORIGINS
+      ? process.env.CORS_ORIGINS.split(",")
+          .map((origin) => origin.trim())
+          .filter(Boolean)
+      : [],
+  ),
+
   jwt: {
     secret: jwtSecret,
     expiresIn: process.env.JWT_EXPIRES_IN?.trim() || "15m",
