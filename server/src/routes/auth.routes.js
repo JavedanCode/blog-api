@@ -1,7 +1,7 @@
 import { Router } from "express";
 import passport from "../config/passport/index.js";
 
-import { body } from "express-validator";
+import { body, checkExact } from "express-validator";
 
 import {
   register,
@@ -54,6 +54,8 @@ router.post(
         max: 128,
       })
       .withMessage("Password must be between 8 and 128 characters."),
+
+    checkExact(),
   ],
 
   handleValidationErrors,
@@ -75,7 +77,7 @@ router.post(
 
     body("password")
       .notEmpty()
-      .withMessage("Password is required")
+      .withMessage("Password is required.")
       .isString()
       .withMessage("Password must be a string.")
       .isLength({
@@ -83,6 +85,8 @@ router.post(
         max: 128,
       })
       .withMessage("Password must be between 1 and 128 characters."),
+
+    checkExact(),
   ],
 
   handleValidationErrors,
