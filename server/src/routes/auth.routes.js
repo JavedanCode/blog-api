@@ -45,10 +45,13 @@ router.post(
       .normalizeEmail(),
 
     body("password")
+      .isString()
+      .withMessage("Password must be a string.")
       .isLength({
         min: 8,
+        max: 128,
       })
-      .withMessage("Password must be at least 8 characters long."),
+      .withMessage("Password must be between 8 and 128 characters."),
   ],
 
   handleValidationErrors,
@@ -68,7 +71,16 @@ router.post(
       .notEmpty()
       .withMessage("Username or email is required."),
 
-    body("password").notEmpty().withMessage("Password is required."),
+    body("password")
+      .notEmpty()
+      .withMessage("Password is required")
+      .isString()
+      .withMessage("Password must be a string.")
+      .isLength({
+        min: 1,
+        max: 128,
+      })
+      .withMessage("Password must be between 1 and 128 characters."),
   ],
 
   handleValidationErrors,
@@ -97,7 +109,6 @@ router.get(
  */
 router.get(
   "/google/callback",
-  authLimiter,
 
   passport.authenticate("google", {
     session: false,
@@ -124,7 +135,6 @@ router.get(
  */
 router.get(
   "/github/callback",
-  authLimiter,
 
   passport.authenticate("github", {
     session: false,
