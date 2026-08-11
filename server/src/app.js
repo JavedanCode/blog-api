@@ -10,6 +10,7 @@ import postRoutes from "./routes/post.routes.js";
 import commentRoutes from "./routes/comment.routes.js";
 
 import { errorHandler } from "./middleware/errorHandler.js";
+import { notFound } from "./middleware/notFound.js";
 
 const app = express();
 
@@ -44,6 +45,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api", commentRoutes);
+
+app.use(notFound);
 
 app.use(errorHandler);
 
