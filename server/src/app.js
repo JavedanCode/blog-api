@@ -17,6 +17,10 @@ import { apiLimiter } from "./middleware/rateLimiter.js";
 
 import { env } from "./config/env.js";
 
+import swaggerUi from "swagger-ui-express";
+
+import { swaggerSpec } from "./docs/openapi.js";
+
 const allowedOrigins = [env.clientUrl].filter(Boolean);
 
 const app = express();
@@ -65,6 +69,8 @@ app.use(
 );
 
 app.use(morgan("dev"));
+
+app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use(passport.initialize());
 
