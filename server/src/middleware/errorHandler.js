@@ -73,6 +73,15 @@ export function errorHandler(error, req, res, next) {
     });
   }
 
+  if (error.type === "entity.too.large") {
+    return res.status(413).json({
+      error: {
+        code: "PAYLOAD_TOO_LARGE",
+        message: "Request body is too large.",
+      },
+    });
+  }
+
   /*
    * Unknown error.
    *
