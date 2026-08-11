@@ -13,6 +13,8 @@ import { errorHandler } from "./middleware/errorHandler.js";
 import { notFound } from "./middleware/notFound.js";
 import { AppError } from "./errors/AppError.js";
 
+import { apiLimiter } from "./middleware/rateLimiter.js";
+
 import { env } from "./config/env.js";
 
 const allowedOrigins = [env.clientUrl].filter(Boolean);
@@ -72,6 +74,8 @@ app.get("/health", (req, res) => {
     message: "Blog API is running",
   });
 });
+
+app.use("/api", apiLimiter);
 
 app.use("/api/auth", authRoutes);
 app.use("/api/posts", postRoutes);
