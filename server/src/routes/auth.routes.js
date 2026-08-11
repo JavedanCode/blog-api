@@ -163,13 +163,16 @@ router.post(
  * /auth/google:
  *   get:
  *     summary: Start Google OAuth authentication
- *     description: Redirects the user to Google to authenticate with their Google account.
+ *     description: >
+ *       Starts the Google OAuth 2.0 authentication flow.
+ *       This endpoint redirects the user's browser to Google.
+ *       It should be opened as a normal browser navigation rather than
+ *       called using an AJAX or fetch request.
  *     tags:
  *       - Authentication
- *
  *     responses:
  *       302:
- *         description: Redirect to the Google OAuth authorization page.
+ *         description: Redirects the browser to Google's OAuth authorization page.
  */
 router.get(
   "/google",
@@ -233,13 +236,16 @@ router.get(
  * /auth/github:
  *   get:
  *     summary: Start GitHub OAuth authentication
- *     description: Redirects the user to GitHub to authenticate with their GitHub account.
+ *     description: >
+ *       Starts the GitHub OAuth authentication flow.
+ *       This endpoint redirects the user's browser to GitHub.
+ *       It should be opened as a normal browser navigation rather than
+ *       called using an AJAX or fetch request.
  *     tags:
  *       - Authentication
- *
  *     responses:
  *       302:
- *         description: Redirect to the GitHub OAuth authorization page.
+ *         description: Redirects the browser to GitHub's OAuth authorization page.
  */
 router.get(
   "/github",
