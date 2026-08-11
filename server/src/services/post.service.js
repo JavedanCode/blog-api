@@ -1,6 +1,12 @@
 import prisma from "../lib/prisma.js";
 import { serializePost } from "../utils/post.js";
 import { AppError } from "../errors/AppError.js";
+import {
+  DEFAULT_LIMIT,
+  DEFAULT_PAGE,
+  DEFAULT_SORT,
+  DEFAULT_ORDER,
+} from "../constants/pagination.js";
 
 const postInclude = {
   author: {
@@ -17,10 +23,10 @@ const postInclude = {
 
 export async function getPosts({
   user,
-  page = 1,
-  limit = 20,
-  sort = "createdAt",
-  order = "desc",
+  page = DEFAULT_PAGE,
+  limit = DEFAULT_LIMIT,
+  sort = DEFAULT_SORT,
+  order = DEFAULT_ORDER,
 }) {
   const isAdmin = user.role === "ADMIN";
 

@@ -15,6 +15,12 @@ import { authenticate } from "../middleware/authenticate.js";
 import { authorize } from "../middleware/authorize.js";
 import { handleValidationErrors } from "../middleware/validation.js";
 
+import {
+  MAX_LIMIT,
+  ALLOWED_SORT_FIELDS,
+  ALLOWED_SORT_ORDERS,
+} from "../constants/pagination.js";
+
 const router = Router();
 
 /*
@@ -43,19 +49,19 @@ router.get(
       .optional()
       .isInt({
         min: 1,
-        max: 100,
+        max: MAX_LIMIT,
       })
       .withMessage("Limit must be between 1 and 100.")
       .toInt(),
 
     query("sort")
       .optional()
-      .isIn(["createdAt", "updatedAt", "title"])
+      .isIn(ALLOWED_SORT_FIELDS)
       .withMessage("Sort must be one of: createdAt, updatedAt, title."),
 
     query("order")
       .optional()
-      .isIn(["asc", "desc"])
+      .isIn(ALLOWED_SORT_ORDERS)
       .withMessage("Order must be either asc or desc."),
 
     checkExact(),
