@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 
 import prisma from "../lib/prisma.js";
 import { sanitizeUser } from "../utils/user.js";
-import AppError from "../errors/AppError.js";
+import { AppError } from "../errors/AppError.js";
 
 const SALT_ROUNDS = 12;
 
