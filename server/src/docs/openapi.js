@@ -1,5 +1,10 @@
 import swaggerJSDoc from "swagger-jsdoc";
 
+import { commonSchemas } from "./schemas/common.js";
+import { authSchemas } from "./schemas/auth.js";
+import { postSchemas } from "./schemas/post.js";
+import { commentSchemas } from "./schemas/comment.js";
+
 const options = {
   definition: {
     openapi: "3.0.3",
@@ -51,7 +56,12 @@ const options = {
         },
       },
 
-      schemas: {},
+      schemas: {
+        ...commonSchemas,
+        ...authSchemas,
+        ...postSchemas,
+        ...commentSchemas,
+      },
 
       responses: {
         ValidationError: {
