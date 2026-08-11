@@ -15,28 +15,60 @@ const postInclude = {
   },
 };
 
-export async function getPosts(user) {
+export async function getPosts({
+  user,
+  page = 1,
+  limit = 20,
+  sort = "createdAt",
+  order = "desc",
+}) {
   const isAdmin = user.role === "ADMIN";
 
-  const posts = await prisma.post.findMany({
-    where: isAdmin
-      ? undefined
-      : {
-          published: true,
-        },
+  const where = isAdmin
+    ? undefined
+    : {
+        published: true,
+      };
 
-    orderBy: {
-      createdAt: "desc",
-    },
+  const skip = (page - 1) * limit;
 
-    include: postInclude,
-  });
+  const [posts, totalItems] = await prisma.$transaction([
+    prisma.post.findMany({
+      where,
 
-  return posts.map((post) =>
-    serializePost(post, {
-      admin: isAdmin,
+      orderBy: {
+        [sort]: order,
+      },
+
+      skip,
+      take: limit,
+
+      include: postInclude,
     }),
-  );
+
+    prisma.post.count({
+      where,
+    }),
+  ]);
+
+  const totalPages = totalItems === 0 ? 0 : Math.ceil(totalItems / limit);
+
+  return {
+    posts: posts.map((post) =>
+      serializePost(post, {
+        admin: isAdmin,
+      }),
+    ),
+
+    pagination: {
+      page,
+      limit,
+      totalItems,
+      totalPages,
+      hasNextPage: totalPages > 0 && page < totalPages,
+      hasPreviousPage: page > 1 && totalItems > 0,
+    },
+  };
 }
 
 export async function getPostById(postId, user) {

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { body, param, checkExact } from "express-validator";
+import { body, param, query, checkExact } from "express-validator";
 
 import {
   listPosts,
@@ -27,7 +27,41 @@ const router = Router();
  */
 router.get(
   "/",
+
   authenticate,
+
+  [
+    query("page")
+      .optional()
+      .isInt({
+        min: 1,
+      })
+      .withMessage("Page must be a positive integer.")
+      .toInt(),
+
+    query("limit")
+      .optional()
+      .isInt({
+        min: 1,
+        max: 100,
+      })
+      .withMessage("Limit must be between 1 and 100.")
+      .toInt(),
+
+    query("sort")
+      .optional()
+      .isIn(["createdAt", "updatedAt", "title"])
+      .withMessage("Sort must be one of: createdAt, updatedAt, title."),
+
+    query("order")
+      .optional()
+      .isIn(["asc", "desc"])
+      .withMessage("Order must be either asc or desc."),
+
+    checkExact(),
+  ],
+
+  handleValidationErrors,
 
   listPosts,
 );

@@ -10,11 +10,15 @@ import {
 
 export async function listPosts(req, res, next) {
   try {
-    const posts = await getPosts(req.user);
-
-    return res.status(200).json({
-      posts,
+    const result = await getPosts({
+      user: req.user,
+      page: req.query.page,
+      limit: req.query.limit,
+      sort: req.query.sort,
+      order: req.query.order,
     });
+
+    return res.status(200).json(result);
   } catch (error) {
     next(error);
   }
