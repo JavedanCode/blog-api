@@ -1,20 +1,7 @@
 import { request } from "./client.js";
 
-export async function getPosts({
-  page = 1,
-  limit = 10,
-  sort = "createdAt",
-  order = "desc",
-  token,
-} = {}) {
-  const params = new URLSearchParams({
-    page: String(page),
-    limit: String(limit),
-    sort,
-    order,
-  });
-
-  return request(`/api/posts?${params.toString()}`, {
+export async function getPosts({ token } = {}) {
+  return request("/api/posts", {
     token,
   });
 }
