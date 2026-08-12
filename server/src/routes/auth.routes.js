@@ -18,6 +18,8 @@ import { handleValidationErrors } from "../middleware/validation.js";
 
 import { authLimiter } from "../middleware/rateLimiter.js";
 
+import { AppError } from "../errors/AppError.js";
+
 const router = Router();
 
 /**
@@ -151,9 +153,33 @@ router.post(
 
   handleValidationErrors,
 
-  passport.authenticate("local", {
-    session: false,
-  }),
+  (req, res, next) => {
+    passport.authenticate(
+      "local",
+      {
+        session: false,
+      },
+      (error, user, info) => {
+        if (error) {
+          return next(error);
+        }
+
+        if (!user) {
+          return next(
+            new AppError(
+              "Invalid username/email or password.",
+              401,
+              "INVALID_CREDENTIALS",
+            ),
+          );
+        }
+
+        req.user = user;
+
+        return next();
+      },
+    )(req, res, next);
+  },
 
   login,
 );
