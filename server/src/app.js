@@ -56,6 +56,16 @@ app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use(passport.initialize());
 
+app.get("/", (req, res) => {
+  res.status(200).json({
+    name: "Blog API",
+    message: "Welcome to the Blog API.",
+    version: "1.0.0",
+    documentation: "/api/docs",
+    health: "/health",
+  });
+});
+
 app.get("/health", (req, res) => {
   res.status(200).json({
     status: "ok",
