@@ -26,6 +26,13 @@ export function AuthProvider({ children }) {
   const [token, setToken] = useState(() => getStoredToken());
   const [loading, setLoading] = useState(true);
 
+  const setSession = useCallback((accessToken, authenticatedUser) => {
+    setStoredToken(accessToken);
+
+    setToken(accessToken);
+    setUser(authenticatedUser);
+  }, []);
+
   const logout = useCallback(() => {
     removeStoredToken();
 
@@ -63,27 +70,27 @@ export function AuthProvider({ children }) {
     refreshUser();
   }, [refreshUser]);
 
-  const login = useCallback(async (credentials) => {
-    const data = await loginRequest(credentials);
+  const login = useCallback(
+    async (credentials) => {
+      const data = await loginRequest(credentials);
 
-    setStoredToken(data.accessToken);
+      setSession(data.accessToken, data.user);
 
-    setToken(data.accessToken);
-    setUser(data.user);
+      return data;
+    },
+    [setSession],
+  );
 
-    return data;
-  }, []);
+  const register = useCallback(
+    async (credentials) => {
+      const data = await registerRequest(credentials);
 
-  const register = useCallback(async (credentials) => {
-    const data = await registerRequest(credentials);
+      setSession(data.accessToken, data.user);
 
-    setStoredToken(data.accessToken);
-
-    setToken(data.accessToken);
-    setUser(data.user);
-
-    return data;
-  }, []);
+      return data;
+    },
+    [setSession],
+  );
 
   const value = useMemo(
     () => ({
@@ -92,12 +99,14 @@ export function AuthProvider({ children }) {
       loading,
       isAuthenticated: Boolean(user && token),
       isAdmin: user?.role === "ADMIN",
+
       login,
       register,
       logout,
       refreshUser,
+      setSession,
     }),
-    [user, token, loading, login, register, logout, refreshUser],
+    [user, token, loading, login, register, logout, refreshUser, setSession],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
