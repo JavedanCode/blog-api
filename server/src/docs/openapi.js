@@ -19,7 +19,7 @@ const options = {
 
     servers: [
       {
-        url: "/",
+        url: "/api",
         description: "Current API server",
       },
     ],
