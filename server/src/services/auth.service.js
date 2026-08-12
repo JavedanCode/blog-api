@@ -16,7 +16,7 @@ export async function getUserById(userId) {
     },
   });
 
-  return user;
+  return sanitizeUser(user);
 }
 
 /**
