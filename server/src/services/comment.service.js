@@ -5,6 +5,7 @@ import { serializeComment } from "../utils/comment.js";
 const commentInclude = {
   author: {
     select: {
+      id: true,
       username: true,
     },
   },
