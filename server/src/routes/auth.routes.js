@@ -7,6 +7,7 @@ import {
   register,
   login,
   oauthCallback,
+  exchangeOAuthCode,
   me,
 } from "../controllers/auth.controller.js";
 
@@ -350,5 +351,24 @@ router.get(
  *         $ref: '#/components/responses/InternalServerError'
  */
 router.get("/me", authenticate, me);
+
+router.post(
+  "/oauth/exchange",
+
+  [
+    body("code")
+      .isString()
+      .withMessage("OAuth code must be a string.")
+      .trim()
+      .notEmpty()
+      .withMessage("OAuth code is required."),
+
+    checkExact(),
+  ],
+
+  handleValidationErrors,
+
+  exchangeOAuthCode,
+);
 
 export default router;
