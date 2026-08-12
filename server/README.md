@@ -4,7 +4,7 @@ A RESTful Blog API built with Node.js, Express, Prisma, and PostgreSQL.
 
 This project provides the backend for a full-stack blog application with local authentication, Google and GitHub OAuth, JWT-based authorization, role-based access control, post publishing, comment management, validation, rate limiting, centralized error handling, automated tests, and interactive OpenAPI documentation.
 
-The frontend is intentionally separated from the backend while remaining within the same project. The backend and frontend have their own directories, dependencies, and development scripts.
+The frontend is implemented as a separate React application within the same repository.
 
 ---
 
@@ -19,7 +19,9 @@ The frontend is intentionally separated from the backend while remaining within 
 - [Environment Variables](#environment-variables)
 - [Database Setup](#database-setup)
 - [Running the API](#running-the-api)
+- [Health Check](#health-check)
 - [Authentication](#authentication)
+- [Local Authentication](#local-authentication)
 - [OAuth](#oauth)
 - [Authorization](#authorization)
 - [Posts API](#posts-api)
@@ -29,7 +31,7 @@ The frontend is intentionally separated from the backend while remaining within 
 - [Security](#security)
 - [API Documentation](#api-documentation)
 - [Testing](#testing)
-- [Development Workflow](#development-workflow)
+- [Deployment](#deployment)
 - [Frontend](#frontend)
 - [Design Principles](#design-principles)
 - [Future Improvements](#future-improvements)
@@ -72,6 +74,8 @@ The backend follows a layered architecture designed to keep HTTP concerns, busin
 - Passport JWT strategy
 - Google OAuth 2.0
 - GitHub OAuth
+- One-time OAuth authorization codes
+- OAuth code exchange endpoint
 - Verified OAuth email handling
 - Multiple authentication providers per user
 - Secure password hashing with bcrypt
@@ -172,31 +176,31 @@ The backend follows a layered architecture designed to keep HTTP concerns, busin
 The backend follows a layered architecture.
 
 ```text
-                    HTTP Request
-                         │
-                         ▼
-                   Express Server
-                         │
-                         ▼
-                     Middleware
-                         │
-          ┌──────────────┼──────────────┐
-          │              │              │
-       Security      Validation    Authentication
-          │              │              │
-          └──────────────┼──────────────┘
-                         │
-                         ▼
-                     Controller
-                         │
-                         ▼
-                      Service
-                         │
-                         ▼
-                       Prisma
-                         │
-                         ▼
-                    PostgreSQL
+                        HTTP Request
+                             │
+                             ▼
+                       Express Server
+                             │
+                             ▼
+                         Middleware
+                             │
+              ┌──────────────┼──────────────┐
+              │              │              │
+           Security      Validation    Authentication
+              │              │              │
+              └──────────────┼──────────────┘
+                             │
+                             ▼
+                         Controller
+                             │
+                             ▼
+                          Service
+                             │
+                             ▼
+                           Prisma
+                             │
+                             ▼
+                        PostgreSQL
 ```
 
 ## Routes
@@ -238,6 +242,7 @@ They are responsible for:
 - Resource existence checks
 - Authorization-related business rules
 - Transforming database results into API-ready data
+- OAuth code creation and consumption
 
 ## Middleware
 
@@ -314,22 +319,13 @@ blog-api/
 │   ├── .env.example
 │   └── package.json
 │
-├── README.md
-└── ...
-```
-
-The frontend will eventually live alongside `server/` in its own directory.
-
-For example:
-
-```text
-blog-api/
-├── server/
-│   └── Backend API
+├── client/
+│   └── React frontend
 │
-└── client/
-    └── Frontend application
+└── README.md
 ```
+
+The repository contains both applications while keeping their dependencies, source code, configuration, and development workflows separate.
 
 ---
 
@@ -344,14 +340,14 @@ Make sure the following are installed:
 - Git
 - A PostgreSQL database
 
-This project currently uses PostgreSQL hosted through Neon.
+The production database is hosted through Neon.
 
 ---
 
 ## Clone the Repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/JavedanCode/blog-api.git
 ```
 
 Move into the project:
@@ -409,25 +405,39 @@ GITHUB_CLIENT_SECRET=your_github_client_secret
 GITHUB_CALLBACK_URL=http://localhost:3000/api/auth/github/callback
 ```
 
+For production, `CLIENT_URL` should point to the deployed frontend.
+
+For example:
+
+```env
+CLIENT_URL=https://javedancode.github.io/blog-api/
+```
+
+Production CORS configuration should include the deployed frontend origin:
+
+```env
+CORS_ORIGINS=https://javedancode.github.io
+```
+
 ## Environment Variable Reference
 
-| Variable               | Description                                     |
-| ---------------------- | ----------------------------------------------- |
-| `PORT`                 | Port used by the Express server                 |
-| `NODE_ENV`             | Application environment                         |
-| `DATABASE_URL`         | PostgreSQL connection string                    |
-| `JWT_SECRET`           | Secret used to sign JWTs                        |
-| `JWT_EXPIRES_IN`       | JWT expiration duration                         |
-| `JWT_ISSUER`           | JWT issuer                                      |
-| `JWT_AUDIENCE`         | JWT audience                                    |
-| `CORS_ORIGINS`         | Comma-separated list of allowed browser origins |
-| `CLIENT_URL`           | Frontend application URL                        |
-| `GOOGLE_CLIENT_ID`     | Google OAuth client ID                          |
-| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret                      |
-| `GOOGLE_CALLBACK_URL`  | Google OAuth callback URL                       |
-| `GITHUB_CLIENT_ID`     | GitHub OAuth client ID                          |
-| `GITHUB_CLIENT_SECRET` | GitHub OAuth client secret                      |
-| `GITHUB_CALLBACK_URL`  | GitHub OAuth callback URL                       |
+| Variable               | Description                                       |
+| ---------------------- | ------------------------------------------------- |
+| `PORT`                 | Port used by the Express server                   |
+| `NODE_ENV`             | Application environment                           |
+| `DATABASE_URL`         | PostgreSQL connection string                      |
+| `JWT_SECRET`           | Secret used to sign JWTs                          |
+| `JWT_EXPIRES_IN`       | JWT expiration duration                           |
+| `JWT_ISSUER`           | JWT issuer                                        |
+| `JWT_AUDIENCE`         | JWT audience                                      |
+| `CORS_ORIGINS`         | Comma-separated list of allowed browser origins   |
+| `CLIENT_URL`           | Frontend application URL used for OAuth redirects |
+| `GOOGLE_CLIENT_ID`     | Google OAuth client ID                            |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret                        |
+| `GOOGLE_CALLBACK_URL`  | Google OAuth callback URL                         |
+| `GITHUB_CLIENT_ID`     | GitHub OAuth client ID                            |
+| `GITHUB_CLIENT_SECRET` | GitHub OAuth client secret                        |
+| `GITHUB_CALLBACK_URL`  | GitHub OAuth callback URL                         |
 
 Never commit the real `.env` file.
 
@@ -493,6 +503,12 @@ The API runs by default at:
 
 ```text
 http://localhost:3000
+```
+
+The production API is deployed at:
+
+```text
+https://blog-api-8sy1.onrender.com
 ```
 
 ---
@@ -617,6 +633,61 @@ The API supports OAuth authentication through:
 
 OAuth authentication uses browser-based redirects rather than normal AJAX requests.
 
+The OAuth flow is divided into two stages:
+
+1. Authentication with the external provider
+2. Exchange of a short-lived OAuth code for a JWT
+
+This keeps the provider callback separate from the frontend session/token exchange.
+
+---
+
+## OAuth Flow
+
+The complete flow is:
+
+```text
+User
+ │
+ │ Clicks "Google" or "GitHub"
+ ▼
+Frontend
+ │
+ │ Browser redirect
+ ▼
+Backend OAuth endpoint
+ │
+ │ Redirect
+ ▼
+Google / GitHub
+ │
+ │ User authenticates
+ ▼
+Backend OAuth callback
+ │
+ │ Create one-time OAuth code
+ ▼
+Frontend OAuth callback
+ │
+ │ POST code
+ ▼
+Backend OAuth exchange endpoint
+ │
+ │ Consume one-time code
+ │
+ │ Create JWT
+ ▼
+Frontend
+ │
+ │ Store authenticated session
+ ▼
+Authenticated application
+```
+
+The OAuth code is intentionally separate from the application's JWT.
+
+The frontend receives the temporary code through the browser redirect and then exchanges it with the backend for the final access token.
+
 ---
 
 ## Google
@@ -635,6 +706,16 @@ After successful authentication, Google redirects back to:
 GET /api/auth/google/callback
 ```
 
+The backend then:
+
+1. Validates the Google authentication result.
+2. Finds or creates the application user.
+3. Creates a short-lived, one-time OAuth authorization code.
+4. Redirects the browser to the frontend OAuth callback.
+5. The frontend sends the code to the backend exchange endpoint.
+6. The backend consumes the code.
+7. The backend creates and returns a JWT access token.
+
 ---
 
 ## GitHub
@@ -652,6 +733,45 @@ After successful authentication, GitHub redirects back to:
 ```http
 GET /api/auth/github/callback
 ```
+
+The backend then follows the same authorization-code exchange flow used by Google.
+
+---
+
+## OAuth Code Exchange
+
+The frontend exchanges the temporary OAuth code through:
+
+```http
+POST /api/auth/oauth/exchange
+```
+
+Request:
+
+```json
+{
+  "code": "temporary-oauth-code"
+}
+```
+
+A successful exchange returns:
+
+```json
+{
+  "message": "OAuth authentication successful.",
+  "user": {
+    "id": "...",
+    "username": "...",
+    "email": "...",
+    "role": "USER"
+  },
+  "accessToken": "eyJ..."
+}
+```
+
+The OAuth code is consumed during the exchange and is not intended to be reused.
+
+The final JWT is created only after the backend successfully consumes the OAuth code.
 
 ---
 
@@ -1025,6 +1145,7 @@ COMMENT_NOT_FOUND
 DUPLICATE_ENTRY_ERROR
 OAUTH_EMAIL_NOT_VERIFIED
 OAUTH_PROVIDER_ERROR
+OAUTH_CLIENT_URL_MISSING
 INTERNAL_SERVER_ERROR
 ```
 
@@ -1059,6 +1180,22 @@ JWTs use:
 - The `HS256` signing algorithm
 
 The application also validates the configured JWT secret during startup.
+
+---
+
+## OAuth Security
+
+OAuth authentication uses a temporary authorization code between the backend and frontend.
+
+The code:
+
+- Is generated by the backend after successful provider authentication
+- Is returned to the frontend through the OAuth redirect
+- Is exchanged through a dedicated backend endpoint
+- Is consumed during the exchange
+- Is not used as the application's long-term authentication credential
+
+The final JWT is generated only after successful OAuth code consumption.
 
 ---
 
@@ -1108,6 +1245,12 @@ Multiple origins can be provided as a comma-separated list:
 CORS_ORIGINS=http://localhost:5173,https://example.com
 ```
 
+For the deployed frontend:
+
+```env
+CORS_ORIGINS=https://javedancode.github.io
+```
+
 The API does not use wildcard origins for the authenticated application.
 
 ---
@@ -1124,6 +1267,12 @@ Interactive Swagger documentation is available at:
 
 ```text
 http://localhost:3000/api/docs
+```
+
+The production API documentation is available at:
+
+```text
+https://blog-api-8sy1.onrender.com/api/docs
 ```
 
 The documentation is generated using OpenAPI 3.0.3.
@@ -1169,7 +1318,7 @@ They should be opened as normal browser navigations rather than executed through
 For example:
 
 ```text
-http://localhost:3000/api/auth/google
+https://blog-api-8sy1.onrender.com/api/auth/google
 ```
 
 should be opened directly in the browser.
@@ -1177,7 +1326,13 @@ should be opened directly in the browser.
 The same applies to GitHub OAuth:
 
 ```text
-http://localhost:3000/api/auth/github
+https://blog-api-8sy1.onrender.com/api/auth/github
+```
+
+The OAuth code exchange endpoint is an API endpoint used by the frontend after the provider authentication flow:
+
+```http
+POST /api/auth/oauth/exchange
 ```
 
 ---
@@ -1198,13 +1353,7 @@ Tests cover functionality including:
 - Ownership rules
 - Error handling
 
-Run the configured test suite using the test script defined in:
-
-```text
-server/package.json
-```
-
-For example:
+Run the configured test suite using:
 
 ```bash
 npm test
@@ -1214,37 +1363,45 @@ The complete test suite should pass before deploying the API.
 
 ---
 
-# Development Workflow
+# Deployment
 
-A typical development workflow is:
+The backend is deployed as a production service using Render.
 
-```text
-1. Start PostgreSQL / Neon
-        ↓
-2. Start the API
-        ↓
-3. Run tests
-        ↓
-4. Use Swagger/Postman for API testing
-        ↓
-5. Make changes
-        ↓
-6. Run tests again
-```
-
-For API development, Swagger is available at:
+Production API:
 
 ```text
-http://localhost:3000/api/docs
+https://blog-api-8sy1.onrender.com
 ```
+
+Health check:
+
+```text
+https://blog-api-8sy1.onrender.com/health
+```
+
+Swagger documentation:
+
+```text
+https://blog-api-8sy1.onrender.com/api/docs
+```
+
+The deployed backend communicates with the frontend hosted on GitHub Pages.
+
+Frontend:
+
+```text
+https://javedancode.github.io/blog-api/
+```
+
+The production environment requires the appropriate CORS and OAuth configuration so that the deployed frontend can communicate with the API and complete the OAuth redirect flow.
 
 ---
 
 # Frontend
 
-The backend is intentionally separated from the frontend.
+The frontend is implemented as a separate React application within the same repository.
 
-The planned project structure is:
+Project structure:
 
 ```text
 blog-api/
@@ -1253,20 +1410,30 @@ blog-api/
 │   └── REST API
 │
 └── client/
-    └── Frontend application
+    └── React frontend
 ```
 
-The frontend will have its own:
+The frontend has its own:
 
 - `package.json`
 - Dependencies
 - Scripts
 - Source code
 - Build configuration
+- Environment variables
+- Deployment configuration
 
 The frontend communicates with the backend through the REST API.
 
-This keeps the two applications independently maintainable while allowing them to remain part of the same repository.
+The frontend is deployed separately using GitHub Pages.
+
+Production frontend:
+
+```text
+https://javedancode.github.io/blog-api/
+```
+
+The backend remains responsible for authentication, authorization, database operations, validation, and API security.
 
 ---
 
@@ -1330,10 +1497,8 @@ Potential future improvements include:
 - Comment pagination
 - Comment moderation
 - API client generation
-- CI/CD
-- Production deployment
+- CI/CD improvements
 - Monitoring and observability
-- Frontend application
 
 These features are intentionally outside the current backend scope.
 
@@ -1343,7 +1508,7 @@ These features are intentionally outside the current backend scope.
 
 ## Backend
 
-**Complete and documented.**
+**Complete and deployed.**
 
 Current backend functionality includes:
 
@@ -1353,6 +1518,8 @@ Current backend functionality includes:
 - Local authentication
 - Google OAuth
 - GitHub OAuth
+- One-time OAuth authorization codes
+- OAuth code exchange
 - JWT authentication
 - Role-based authorization
 - Blog post management
@@ -1361,15 +1528,25 @@ Current backend functionality includes:
 - Request validation
 - Rate limiting
 - Security middleware
+- CORS configuration
 - Centralized error handling
 - API serialization
 - Automated tests
 - OpenAPI documentation
 - Swagger UI
+- Production deployment
 
 ## Frontend
 
-The frontend is the next major stage of development and will be implemented as a separate application within this repository.
+**Complete and deployed.**
+
+The frontend is available at:
+
+```text
+https://javedancode.github.io/blog-api/
+```
+
+It provides the user-facing interface for authentication, blog posts, comments, profiles, and administration.
 
 ---
 
