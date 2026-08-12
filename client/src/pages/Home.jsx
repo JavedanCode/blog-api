@@ -17,7 +17,7 @@ function Home() {
   const [error, setError] = useState(null);
 
   const fetchPosts = useCallback(async () => {
-    if (authLoading || !token) {
+    if (authLoading) {
       return;
     }
 
