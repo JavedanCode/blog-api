@@ -4,17 +4,17 @@ A responsive blog frontend built with React, Vite, and Tailwind CSS. The applica
 
 ## Live Demo
 
-[https://javedancode.github.io/blog-api/](https://javedancode.github.io/blog-api/)
+[https://javedancode.github.io/blog-api/](https://javedancode.github.io/blog-api/login)
 
 ## Screenshots
 
 ### Login
 
-![Login Page](./screenshots/login.png)
+<img width="1902" height="915" alt="image" src="https://github.com/user-attachments/assets/a69c5063-9eb1-4174-ac1f-d714fe9db1b5" />
 
 ### Home
 
-![Home Page](./screenshots/home.png)
+<img width="1904" height="914" alt="image" src="https://github.com/user-attachments/assets/95d1747c-7913-4e1d-9553-50b7a7e2fef3" />
 
 ## Features
 
