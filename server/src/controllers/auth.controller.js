@@ -56,7 +56,7 @@ export async function oauthCallback(req, res, next) {
       );
     }
 
-    const redirectUrl = new URL("/oauth/callback", clientUrl);
+    const redirectUrl = new URL("oauth/callback", `${clientUrl}/`);
 
     redirectUrl.searchParams.set("code", code);
 
