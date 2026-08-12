@@ -83,3 +83,8 @@ export async function exchangeOAuthCode(req, res, next) {
     next(error);
   }
 }
+export function me(req, res) {
+  return res.status(200).json({
+    user: req.user,
+  });
+}
