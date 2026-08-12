@@ -19,8 +19,8 @@ const options = {
 
     servers: [
       {
-        url: "http://localhost:3000/api",
-        description: "Local development server",
+        url: "/",
+        description: "Current API server",
       },
     ],
 
