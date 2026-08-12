@@ -19,7 +19,7 @@ import OAuthCallback from "../pages/OAuthCallback.jsx";
 
 function AppRouter() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/blog-api">
       <Routes>
         <Route element={<MainLayout />}>
           {/* Public routes */}
